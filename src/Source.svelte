@@ -15,6 +15,7 @@
 
 <style>
     .source {
+        z-index: 1;
         position: relative;
         display: flex;
         overflow: hidden;

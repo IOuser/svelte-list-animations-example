@@ -11,9 +11,14 @@
     export let sourcesList;
 
     let activeSourceId = null;
+    let visibleChildrenCount = 2;
 
     function activate({ detail }) {
         activeSourceId = detail.source.id;
+
+        if (!detail.source.parentId) {
+            visibleChildrenCount = 2;
+        }
     }
 
     function deactivate({ detail }) {
@@ -21,9 +26,10 @@
 
         if (detail.source.parentId) {
             activeSourceId = detail.source.parentId;
+        } else {
+            visibleChildrenCount = 2;
         }
     }
-
 
     const [send, receive] = crossfade({
         duration: d => Math.sqrt(d * 200),
@@ -52,7 +58,24 @@
 
     .sources-list .sources-list {
         margin-top: 10px;
-        margin-left: 10px;
+        margin-left: 20px;
+    }
+
+    .sources-list button {
+        display: block;
+        background-color: #a8cbff;
+        outline: 0;
+        padding: 0 10px;
+        margin: 0 auto;
+        margin-top: 10px;
+        height: 26px;
+        line-height: 26px;
+        color: #fff;
+        border: 0;
+        border-radius: 13px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
     }
 </style>
 
@@ -75,7 +98,7 @@
 
                     {#if source.children && source.children.length }
                         <div class="sources-list">
-                            {#each source.children as childSource (childSource.id)}
+                            {#each source.children.slice(0, visibleChildrenCount) as childSource, i (childSource.id)}
                                 <div
                                     in:receive={{ key: childSource.id }}
                                     out:send={{ key: childSource.id }}
@@ -91,6 +114,9 @@
                                         <div in:fade={{ duration: 200 }}>
                                             <SourceActions />
                                         </div>
+                                    {/if}
+                                    {#if visibleChildrenCount !== source.children.length && i === visibleChildrenCount - 1}
+                                        <button on:click={() => visibleChildrenCount++}>Show more sources</button>
                                     {/if}
                                 </div>
                             {/each}
